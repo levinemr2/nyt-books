@@ -1,26 +1,57 @@
-import React from 'react';
+import React, { Component } from 'react';
 import logo from './logo.svg';
 import './App.css';
+import './util.css';
+import { FormGroup, FormControl, InputGroup,  } from 'react-bootstrap';
+import Gallery from './components/Gallery.js';
 
-function App() {
-  return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
-  );
+class App extends Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      query: '',
+      items: []
+    };
+  }
+
+  search() {
+    const API_URL = 'https://www.googleapis.com/books/v1/volumes?q=';
+    fetch(`${API_URL}${this.state.query}`)
+      .then(response => response.json())
+      .then(json => {
+        let {items} = json;
+        this.setState({items})
+      }); // TODO: Add a catch method here in case the API call fails
+  }
+
+  render() {
+    return (
+      <div className="App">
+        <header className="App-header">
+          <img src={logo} className="App-logo" alt="logo" />
+          <h1 className="App-title">NYT Google Books Search </h1>
+        </header>
+        <div className="container main-content">
+          <FormGroup>
+            <InputGroup>
+              <FormControl type="text" placeholder="Search for a book"
+              onChange={ event => this.setState({ query: event.target.value }) }
+              onKeyPress={ event => {
+                if ('Enter' === event.key) {
+                  this.search();
+                }
+              }} />
+              <button
+              onClick={ event => {
+                this.search();
+              }}>Search</button>
+            </InputGroup>
+          </FormGroup>
+          <Gallery items={this.state.items} />
+        </div>
+      </div>
+    );
+  }
 }
 
 export default App;
